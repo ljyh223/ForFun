@@ -100,7 +100,7 @@
             formData.append('assignment_date', assignmentDate);
             formData.append('group', group);
 
-            fetch('http://localhost:5000/check_and_upload', {
+            fetch('http://172.245.119.194:5000/check_and_upload', {
                 method: 'POST',
                 body: formData
             })
@@ -109,7 +109,7 @@
                     if (data.exists) {
                         if (confirm('文件已存在，是否替换上传？')) {
                             formData.append('replace_upload', true);
-                            fetch('http://localhost:5000/check_and_upload', {
+                            fetch('http://172.245.119.194:5000/check_and_upload', {
                                 method: 'POST',
                                 body: formData
                             })
