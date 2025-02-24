@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>上传作业</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            max-width: 600px;
+            margin: auto;
+            background-color: #f4f4f9;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        #date {
+            text-align: center;
+            color: #777;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="file"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin-top: 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>上传作业</h1>
+    <div id="date"></div>
+
+    <form id="uploadForm">
+        <label for="file">选择文件:</label>
+        <input type="file" id="file" name="file" required><br>
+
+        <label for="studentName">姓名:</label>
+        <input type="text" id="studentName" name="studentName" required><br>
+
+        <label for="studentId">学号:</label>
+        <input type="text" id="studentId" name="studentId" required><br>
+
+        <label for="group">分组:</label>
+        <input type="text" id="group" name="group" required><br>
+
+        <button type="submit">提交</button>
+    </form>
+
+    <script>
+        const assignmentDate = '2025-02-24'; // 固定的发布日期
+        document.getElementById('date').innerHTML = "发布日期: " + assignmentDate;
+        document.getElementById('uploadForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const fileInput = document.getElementById('file');
+            const file = fileInput.files[0];
+
+            const studentName = document.getElementById('studentName').value;
+            const studentId = document.getElementById('studentId').value;
+            const group = document.getElementById('group').value;
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('student_name', studentName);
+            formData.append('student_id', studentId);
+            formData.append('assignment_date', assignmentDate);
+            formData.append('group', group);
+
+            fetch('http://localhost:5000/check_and_upload', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.exists) {
+                        if (confirm('文件已存在，是否替换上传？')) {
+                            formData.append('replace_upload', true);
+                            fetch('http://localhost:5000/check_and_upload', {
+                                method: 'POST',
+                                body: formData
+                            })
+                                .then(response => response.json())
+                                .then(data => {
+                                    alert(JSON.stringify(data));
+                                })
+                                .catch(error => {
+                                    console.error('Error:', error);
+                                });
+                        }
+                    } else {
+                        alert(JSON.stringify(data));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+    </script>
+</body>
+
+</html>
