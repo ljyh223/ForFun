@@ -82,6 +82,8 @@
 
     <script>
         const assignmentDate = '2025-02-24'; // 固定的发布日期
+        const host="https://collect.ljyh.link";
+        // const host="http://172.245.119.194:5000";
         document.getElementById('date').innerHTML = "发布日期: " + assignmentDate;
         document.getElementById('uploadForm').addEventListener('submit', function (event) {
             event.preventDefault();
@@ -99,8 +101,8 @@
             formData.append('student_id', studentId);
             formData.append('assignment_date', assignmentDate);
             formData.append('group', group);
-
-            fetch('http://172.245.119.194:5000/check_and_upload', {
+         
+            fetch(host+'/check_and_upload', {
                 method: 'POST',
                 body: formData
             })
@@ -109,20 +111,28 @@
                     if (data.exists) {
                         if (confirm('文件已存在，是否替换上传？')) {
                             formData.append('replace_upload', true);
-                            fetch('http://172.245.119.194:5000/check_and_upload', {
+                            fetch(host+'/check_and_upload', {
                                 method: 'POST',
                                 body: formData
                             })
                                 .then(response => response.json())
                                 .then(data => {
-                                    alert(JSON.stringify(data));
+                                    if (data.uploaded) {
+                                        alert('文件替换上传成功！');
+                                    } else {
+                                        alert('文件替换上传失败：' + data.error);
+                                    }
                                 })
                                 .catch(error => {
                                     console.error('Error:', error);
                                 });
                         }
                     } else {
-                        alert(JSON.stringify(data));
+                        if (data.uploaded) {
+                            alert('文件上传成功！');
+                        } else {
+                            alert('文件上传失败：' + data.error);
+                        }
                     }
                 })
                 .catch(error => {
